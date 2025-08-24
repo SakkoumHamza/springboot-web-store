@@ -19,6 +19,7 @@ import java.util.Set;
 @Table(name = "users")
 public class User {
     @Id
+    @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY )
     private Long id;
 
@@ -65,5 +66,13 @@ public class User {
 
     @OneToOne(mappedBy = "user")
     private Profile profile;
+
+    @ManyToMany
+    @JoinTable(
+            name = "wishlist",
+            joinColumns =@JoinColumn(name = "user_id") , // refrencing the owner of the relationShip
+            inverseJoinColumns = @JoinColumn(name = "product_id") // Target side of the relationShip
+    )
+    private Set<Product> wishList = new HashSet<>();
 
 }
