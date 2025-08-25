@@ -1,4 +1,4 @@
-package com.hamza.springstore;
+package com.hamza.springstore.entities;
 
 import jakarta.persistence.*;
 import lombok.*;

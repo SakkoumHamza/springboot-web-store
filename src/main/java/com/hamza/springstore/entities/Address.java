@@ -1,4 +1,4 @@
-package com.hamza.springstore;
+package com.hamza.springstore.entities;
 
 
 import jakarta.persistence.*;
@@ -32,7 +32,7 @@ public class Address {
     private String zip ;
 
     @ToString.Exclude
-    @ManyToOne
+    @ManyToOne()
     @JoinColumn(name = "user_id") // To specify the foreign key
     private User user ;
 
