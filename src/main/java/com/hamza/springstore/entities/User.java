@@ -33,7 +33,7 @@ public class User {
     private String email;
 
     @Builder.Default
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = { CascadeType.PERSIST, CascadeType.REMOVE }, orphanRemoval = true )
     private List<Address> adresses = new ArrayList<>();
 
     public void addAddress(Address address) {
@@ -67,7 +67,7 @@ public class User {
     @OneToOne(mappedBy = "user")
     private Profile profile;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "wishlist",
             joinColumns =@JoinColumn(name = "user_id") , // refrencing the owner of the relationShip
