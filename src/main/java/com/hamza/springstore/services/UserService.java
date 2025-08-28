@@ -4,14 +4,12 @@ import com.hamza.springstore.entities.Address;
 import com.hamza.springstore.entities.Category;
 import com.hamza.springstore.entities.Product;
 import com.hamza.springstore.entities.User;
-import com.hamza.springstore.repositories.AddressRepository;
-import com.hamza.springstore.repositories.CategoryRepository;
-import com.hamza.springstore.repositories.ProductRepository;
-import com.hamza.springstore.repositories.UserRepository;
-import com.hamza.springstore.repositories.ProfileRepository;
+import com.hamza.springstore.repositories.*;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -26,6 +24,7 @@ public class UserService {
     private final AddressRepository addressRepository;
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
+    private final ProductCriteriaRepository productCriteriaRepository;
 
     @Transactional
     public void showEntityStates() {
@@ -101,8 +100,21 @@ public class UserService {
         return productRepository.findNameById(5l);
     }
 
+    @Transactional
     public void fetchProducts(){
-        productRepository.findByCategory(new Category((byte) 2));
+        var product = new Product();
+        product.setName("MacBook");
+
+        var matcher = ExampleMatcher.matching().withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING);
+
+        var example = Example.of(product, matcher);
+        var products = productRepository.findAll(example);
+        products.forEach(System.out::println);
+    }
+
+    public void fetchProductsByCriteria(){
+        var products = productCriteriaRepository.findProductsByCriteria("Mac",BigDecimal.valueOf(1), BigDecimal.valueOf(12000));
+        products.forEach(System.out::println);
     }
 
     @Transactional

@@ -3,6 +3,8 @@ package com.hamza.springstore.repositories;
 import com.hamza.springstore.dtos.ProductSummary;
 import com.hamza.springstore.entities.Category;
 import com.hamza.springstore.entities.Product;
+import org.springframework.data.domain.Example;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.query.Procedure;
@@ -14,7 +16,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 @Repository
-public interface ProductRepository extends CrudRepository<Product, Long> {
+public interface ProductRepository extends JpaRepository<Product, Long>, ProductCriteriaRepository {
 //    Using native sql
     @Procedure("findProductsByPrice")
     List<Product> findByPrice(BigDecimal lower, BigDecimal upper);
@@ -34,4 +36,7 @@ public interface ProductRepository extends CrudRepository<Product, Long> {
 
     @Query("select p from Product p where p.category = :category")
     List<ProductSummary> findByCategory(@Param("category") Category category);
+
+//    List<Product> findAll(Example<Product> example);
+
 }

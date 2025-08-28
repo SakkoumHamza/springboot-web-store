@@ -84,4 +84,6 @@ public class User {
                 "password = " + password + ", " +
                 "email = " + email + ")";
     }
+
+
 }
