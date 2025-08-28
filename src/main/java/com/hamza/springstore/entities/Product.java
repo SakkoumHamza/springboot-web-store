@@ -27,7 +27,7 @@ public class Product {
     private BigDecimal price;
 
     @Builder.Default
-    @ManyToOne(cascade = CascadeType.PERSIST)
+    @ManyToOne(cascade = CascadeType.PERSIST )
     @JoinColumn(name = "category_id")
     private Category category = new Category();
 

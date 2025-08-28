@@ -27,4 +27,8 @@ public class Category {
     @Builder.Default
     @OneToMany(mappedBy = "category")
     private Set <Product> product = new HashSet<>();
+
+    public Category(byte id) {
+        this.id = id;
+    }
 }
