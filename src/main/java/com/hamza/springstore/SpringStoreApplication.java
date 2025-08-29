@@ -15,9 +15,13 @@ public class SpringStoreApplication {
     public static void main(String[] args) {
         ApplicationContext context = SpringApplication.run(SpringStoreApplication.class, args);
         var userService = context.getBean(UserService.class);
+//        Fetching products by specifications
+        userService.fetchProductsBySpecification("Mac", BigDecimal.valueOf(1));
+//        Sorting
+        userService.fetchSortedProducts();
+//        Pagination
+        userService.fetchPaginatedProducts(1, 10);
 
-//        Implementing query by example : find all users with name MacBook
-        userService.fetchProductsByCriteria();
 
     }
 

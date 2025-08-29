@@ -5,11 +5,12 @@ import com.hamza.springstore.entities.Category;
 import com.hamza.springstore.entities.Product;
 import com.hamza.springstore.entities.User;
 import com.hamza.springstore.repositories.*;
+import com.hamza.springstore.repositories.specifications.ProductSpec;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.ExampleMatcher;
+import org.springframework.data.domain.*;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -127,6 +128,36 @@ public class UserService {
         profiles.forEach(u -> {
             System.out.println(u);
         });
+    }
+    public void fetchProductsBySpecification(String name, BigDecimal lower){
+        Specification<Product> spec = Specification.where(null);
+        if(name!=null){
+            spec.and(ProductSpec.hasName(name));
+        }
+        if(lower!=null){
+            spec.and(ProductSpec.hasPriceGreaterThanOrEqual(lower));
+        }
+
+        productRepository.findAll(spec).forEach(System.out::println);
+    }
+
+    public void fetchSortedProducts(){
+        var sort = Sort.by( "name").and(
+                Sort.by("price").descending()
+        );
+
+        productRepository.findAll(sort).forEach(System.out::println);
+
+    }
+
+    public void fetchPaginatedProducts(int pageNumber, int size){
+        PageRequest pageRequest = PageRequest.of(pageNumber,size);
+        Page<Product> page = productRepository.findAll(pageRequest);
+        var products = page.getContent();
+
+        products.forEach(System.out::println);
+        System.out.println(page.getTotalPages());
+        System.out.println(page.getTotalElements());
     }
 
 
