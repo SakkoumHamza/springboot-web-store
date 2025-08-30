@@ -1,15 +1,8 @@
 package com.hamza.springstore.repositories;
 
-import com.hamza.springstore.dtos.ProductSummary;
-import com.hamza.springstore.entities.Category;
 import com.hamza.springstore.entities.Product;
-import org.springframework.data.domain.Example;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.*;
 import org.springframework.data.jpa.repository.query.Procedure;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
@@ -35,9 +28,10 @@ public interface ProductRepository extends JpaRepository<Product, Long>, Product
     String findNameById(@Param("id") Long id);
 
 
-    @Query("select p from Product p where p.category = :category")
-    List<ProductSummary> findByCategory(@Param("category") Category category);
+    @EntityGraph(attributePaths = "category")
+    @Query("select p from Product p ")
+    List<Product> findAllWithCategory();
 
-//    List<Product> findAll(Example<Product> example);
-
+    @EntityGraph(attributePaths = "category")
+    List<Product> findByCategoryId(Byte categoryId);
 }

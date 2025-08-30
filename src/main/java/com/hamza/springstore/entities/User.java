@@ -35,16 +35,8 @@ public class User {
     @Builder.Default
     @OneToMany(mappedBy = "user",fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.REMOVE }, orphanRemoval = true )
     private List<Address> addresses = new ArrayList<>();
-    @Builder.Default
-    @ManyToMany()
-    @JoinTable(
-            name = "user_tags",
-            joinColumns = @JoinColumn(name="user_id"),
-            inverseJoinColumns = @JoinColumn(name = "id")
-    )
-    private Set<Tag> tags = new HashSet<>();
 
-    @OneToOne(mappedBy = "user", cascade= CascadeType.REMOVE)
+    @OneToOne(mappedBy = "user", cascade= CascadeType.REMOVE, fetch = FetchType.LAZY)
     private Profile profile;
 
     @ManyToMany(fetch = FetchType.LAZY)
@@ -65,16 +57,6 @@ public class User {
         address.setUser(null);
     }
 
-    public void addTag(String tagName) {
-        var tag = Tag.builder().name(tagName).build();
-        tags.add(tag);
-        tag.getUsers().add(this);
-    }
-
-    public void removeTag(Tag tag) {
-        tags.remove(tag);
-        System.out.println("Tag " + tag.getName() + " removed");
-    }
 
     @Override
     public String toString() {
