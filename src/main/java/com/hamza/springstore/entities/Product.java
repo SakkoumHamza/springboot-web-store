@@ -3,6 +3,7 @@ package com.hamza.springstore.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.math.BigDecimal;
 
 
@@ -26,10 +27,12 @@ public class Product {
     @Column(name = "price")
     private BigDecimal price;
 
+    @Column(name="description")
+    private String description;
+
     @Builder.Default
     @ManyToOne(cascade = CascadeType.PERSIST )
     @JoinColumn(name = "category_id")
     private Category category = new Category();
-
 
 }

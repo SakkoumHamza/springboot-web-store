@@ -1,11 +1,11 @@
 package com.hamza.springstore.dtos;
 
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 
 import java.math.BigDecimal;
 
-@Getter
+@Data
 @AllArgsConstructor
 public class ProductDto {
     private Long id ;

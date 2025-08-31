@@ -1,12 +1,15 @@
 package com.hamza.springstore.controllers;
 
 import com.hamza.springstore.dtos.RegisterUserRequest;
+import com.hamza.springstore.dtos.UpdatePasswordRequest;
+import com.hamza.springstore.dtos.UpdateUserRequest;
 import com.hamza.springstore.dtos.UserDto;
 import com.hamza.springstore.mappers.UserMapper;
 import com.hamza.springstore.repositories.UserRepository;
 import com.hamza.springstore.services.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -38,7 +41,7 @@ public class UsersController {
         return ResponseEntity.ok(userMapper.toDto(user));
     }
 
-    @PostMapping
+    @PostMapping("/create")
     public ResponseEntity<UserDto> createUser(
             @RequestBody RegisterUserRequest request,
             UriComponentsBuilder uriBuilder
@@ -50,4 +53,47 @@ public class UsersController {
         return ResponseEntity.created(uri).body(userDto);
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<UserDto> updateUser(
+            @PathVariable Long id,
+            @RequestBody UpdateUserRequest request
+    ){
+        var user = userRepository.findById(id).orElse(null);
+        if (user == null)
+            return ResponseEntity.notFound().build();
+        userMapper.updateUser(request,user);
+        userRepository.save(user);
+        return ResponseEntity.ok(userMapper.toDto(user));
+    }
+
+    @DeleteMapping("/{id}/delete")
+    public ResponseEntity<Void> deleteUser(
+            @PathVariable(name = "id") Long id
+    ){
+        var user = userRepository.findById(id).orElse(null);
+
+        if(user == null)
+            return ResponseEntity.notFound().build();
+
+        userRepository.delete(user);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{id}/update-password")
+    public ResponseEntity<Void> updatePassword(
+            @PathVariable(name = "id") Long id,
+            @RequestBody UpdatePasswordRequest request
+    ){
+        var user = userRepository.findById(id).orElse(null);
+
+        if(user == null)
+            return ResponseEntity.notFound().build();
+
+        if(!user.getPassword().equals(request.getOldPassword()))
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+
+        user.setPassword(request.getNewPassword());
+        userRepository.save(user);
+        return ResponseEntity.noContent().build();
+    }
 }
