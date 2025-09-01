@@ -13,6 +13,8 @@ public interface UserRepository  extends JpaRepository<User,Long> {
 
     boolean existsByName(String name);
 
+    boolean existsByEmail(String email);
+
     @Query("select u.id as id ,u.email as email from User u where u.profile.loyalityPoints > :min order by u.email")
     List<User> findUsers(@Param("min") int min);
 }

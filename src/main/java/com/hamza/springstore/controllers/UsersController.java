@@ -7,6 +7,7 @@ import com.hamza.springstore.dtos.UserDto;
 import com.hamza.springstore.mappers.UserMapper;
 import com.hamza.springstore.repositories.UserRepository;
 import com.hamza.springstore.services.UserService;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -14,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.util.Map;
 import java.util.Set;
 
 
@@ -42,11 +44,14 @@ public class UsersController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<UserDto> createUser(
-            @RequestBody RegisterUserRequest request,
+    public ResponseEntity<?> createUser(
+            @Valid @RequestBody RegisterUserRequest request,
             UriComponentsBuilder uriBuilder
     ) {
         var user = userMapper.toEntity(request);
+        if(!userRepository.existsByEmail(user.getEmail()))
+            return
+                ResponseEntity.badRequest().body(Map.of("message", "Email already exists"));
         userRepository.save(user);
         var userDto = userMapper.toDto(user);
         var uri = uriBuilder.path("/{id}").buildAndExpand(userDto.getId()).toUri();
