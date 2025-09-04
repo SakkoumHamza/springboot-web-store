@@ -5,6 +5,7 @@ import com.hamza.springstore.dtos.ProductDto;
 import com.hamza.springstore.mappers.ProductMapper;
 import com.hamza.springstore.repositories.CategoryRepository;
 import com.hamza.springstore.repositories.ProductRepository;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,6 +14,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 @RequestMapping("/products")
 @RestController
 @AllArgsConstructor
+@Tag(name ="Products")
 public class ProductsContoller {
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;

@@ -7,6 +7,7 @@ import com.hamza.springstore.dtos.UserDto;
 import com.hamza.springstore.mappers.UserMapper;
 import com.hamza.springstore.repositories.UserRepository;
 import com.hamza.springstore.services.UserService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Sort;
@@ -22,6 +23,7 @@ import java.util.Set;
 @AllArgsConstructor
 @RestController
 @RequestMapping("/users")
+@Tag(name = "Users")
 public class UsersController {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
