@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface UserRepository  extends JpaRepository<User,Long> {
@@ -17,4 +18,9 @@ public interface UserRepository  extends JpaRepository<User,Long> {
 
     @Query("select u.id as id ,u.email as email from User u where u.profile.loyalityPoints > :min order by u.email")
     List<User> findUsers(@Param("min") int min);
+
+    @Query("select u.password from User u where u.email = :email")
+    String getPasswordByEmail(@Param("email") String email);
+
+    Optional<User> findByEmail(String email);
 }

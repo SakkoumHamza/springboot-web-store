@@ -13,6 +13,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -28,6 +29,7 @@ public class UsersController {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final UserService userService;
+    private final PasswordEncoder passwordEncoder;
 
     @GetMapping
     public Iterable<UserDto> getUsers( @RequestParam( name = "sort", required = false, defaultValue = "") String sort ) {
@@ -50,14 +52,16 @@ public class UsersController {
             @Valid @RequestBody RegisterUserRequest request,
             UriComponentsBuilder uriBuilder
     ) {
-        var user = userMapper.toEntity(request);
-        if(!userRepository.existsByEmail(user.getEmail()))
+        if(userRepository.existsByEmail(request.getEmail()))
             return
                 ResponseEntity.badRequest().body(Map.of("message", "Email already exists"));
+
+        var user = userMapper.toEntity(request);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
         var userDto = userMapper.toDto(user);
         var uri = uriBuilder.path("/{id}").buildAndExpand(userDto.getId()).toUri();
-        return ResponseEntity.created(uri).body(userDto);
+        return ResponseEntity.created(uri  ).body(userDto);
     }
 
     @PutMapping("/{id}")

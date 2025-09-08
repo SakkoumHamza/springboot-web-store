@@ -47,6 +47,7 @@ public class User {
     )
     private Set<Product> wishList = new HashSet<>();
 
+
     public void addAddress(Address address) {
         addresses.add(address);
         address.setUser(this);
