@@ -1,5 +1,6 @@
 package com.hamza.springstore.configurations;
 
+import com.hamza.springstore.filters.JwtAuthenticationFilter;
 import com.hamza.springstore.services.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -15,12 +16,14 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
 @AllArgsConstructor
 public class SecurityConfig {
     private final UserService userService;
+    private final JwtAuthenticationFilter  jwtAuthenticationFilter;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -51,7 +54,9 @@ public class SecurityConfig {
                     .requestMatchers(HttpMethod.POST,"/users/create").permitAll()
                     .requestMatchers(HttpMethod.POST,"/auth/login").permitAll()
                     .anyRequest().authenticated()
-                );
+                )
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+        ;
 
         return http.build();
     }
