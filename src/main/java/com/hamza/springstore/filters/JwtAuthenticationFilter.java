@@ -29,14 +29,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
           filterChain.doFilter(request, response); // Pass control to the next filter in the filter chain
           return;
         }
+        assert authHeader != null;
         var token = authHeader.replace("Bearer ", "");
         if(!jwtService.validateToken(token)) {
             filterChain.doFilter(request, response);
             return;
-        };
+        }
 //      Create an Authentication object
         var authentication = new UsernamePasswordAuthenticationToken(
-                jwtService.getEmailFromToken(token),
+                jwtService.getIdFromToken(token),
                 null,
                 null
         );

@@ -2,7 +2,10 @@ package com.hamza.springstore.controllers;
 
 
 import com.hamza.springstore.dtos.JwtResponse;
+import com.hamza.springstore.dtos.UserDto;
 import com.hamza.springstore.dtos.UserLoginRequest;
+import com.hamza.springstore.mappers.UserMapper;
+import com.hamza.springstore.repositories.UserRepository;
 import com.hamza.springstore.services.JwtService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -11,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -18,6 +22,8 @@ import org.springframework.web.bind.annotation.*;
 @AllArgsConstructor
 public class AuthController {
     private final AuthenticationManager authenticationManager;
+    private final UserRepository userRepository;
+    private final UserMapper userMapper;
     private final JwtService jwtService;
 
     @PostMapping("/login")
@@ -30,9 +36,9 @@ public class AuthController {
                         request.getPassword()
                 )
         );
+        var user = userRepository.findByEmail(request.getEmail()).orElseThrow();
         //   Return a json token
-        var token  = jwtService.generateToken(request.getEmail());
-
+        var token  = jwtService.generateToken(user);
         return ResponseEntity.ok(new JwtResponse(token));
     }
 
@@ -44,6 +50,19 @@ public class AuthController {
             return jwtService.validateToken(token);
     }
 
+    @GetMapping("/me")
+    public ResponseEntity<UserDto> me() {
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        var userId = (Long) auth.getPrincipal();
+
+        var user = userRepository.findById(userId).orElse(null);
+        if (user == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        var userDto = userMapper.toDto(user);
+        return ResponseEntity.ok().body(userDto);
+    }
 
 
 //    Exceptions handlers
