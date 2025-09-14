@@ -1,28 +1,37 @@
 package com.hamza.springstore.services;
 
+import com.hamza.springstore.configurations.JwtConfig;
+import com.hamza.springstore.entities.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.Keys;
-import org.springframework.beans.factory.annotation.Value;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.Map;
 
 @Service
+@AllArgsConstructor
 public class JwtService {
-    final int tokenExpiration = 84600;
+    private final JwtConfig jwtConfig;
 
-    @Value("${spring.jwt.secret}")
-    private String secret;
+    public String generateRefreshToken(User user) {
+        return generateToken(user, jwtConfig.getRefreshTokenExpiration());
+    }
 
-    public String generateToken(String email) {
-         return Jwts.builder()
-                 .subject(email)
-                 .issuedAt(new Date())
-                 .expiration(new Date(System.currentTimeMillis() + 1000 * tokenExpiration))
-                 .signWith(Keys.hmacShaKeyFor(secret.getBytes()))
-                 .compact();
+    public String generateAccessToken(User user) {
+        return generateToken(user,jwtConfig.getAccessTokenExpiration());
+    }
+
+    private String generateToken(User user,long tokenExpiration) {
+        return Jwts.builder()
+                .claims(Map.of("name", user.getName(), "email", user.getEmail()))
+                .subject(user.getId().toString())
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + 1000 * tokenExpiration))
+                .signWith(jwtConfig.getSecretKey())
+                .compact();
     }
 
     public boolean validateToken(String token) {
@@ -34,14 +43,15 @@ public class JwtService {
         }
     }
 
-    public String getEmailFromToken(String token) {
-        return getClaims(token).getSubject();
+    public Long getIdFromToken(String token) {
+        return Long.valueOf(getClaims(token).getSubject());
     }
 
     private Claims getClaims(String token) {
+
         return Jwts
                 .parser()
-                .verifyWith(Keys.hmacShaKeyFor(secret.getBytes()))
+                .verifyWith(jwtConfig.getSecretKey())
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
