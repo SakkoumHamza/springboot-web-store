@@ -4,6 +4,7 @@ import com.hamza.springstore.dtos.RegisterUserRequest;
 import com.hamza.springstore.dtos.UpdatePasswordRequest;
 import com.hamza.springstore.dtos.UpdateUserRequest;
 import com.hamza.springstore.dtos.UserDto;
+import com.hamza.springstore.entities.Role;
 import com.hamza.springstore.mappers.UserMapper;
 import com.hamza.springstore.repositories.UserRepository;
 import com.hamza.springstore.services.UserService;
@@ -58,6 +59,7 @@ public class UsersController {
 
         var user = userMapper.toEntity(request);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setRole(Role.USER);
         userRepository.save(user);
         var userDto = userMapper.toDto(user);
         var uri = uriBuilder.path("/{id}").buildAndExpand(userDto.getId()).toUri();

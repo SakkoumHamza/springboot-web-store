@@ -31,6 +31,9 @@ public class User {
     @Column(nullable = false, name = "email")
     private String email;
 
+    @Column(name = "role")
+    @Enumerated(EnumType.STRING)
+    private Role role;
 
     @Builder.Default
     @OneToMany(mappedBy = "user",fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.REMOVE }, orphanRemoval = true )

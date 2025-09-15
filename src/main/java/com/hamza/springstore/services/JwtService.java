@@ -26,7 +26,7 @@ public class JwtService {
 
     private String generateToken(User user,long tokenExpiration) {
         return Jwts.builder()
-                .claims(Map.of("name", user.getName(), "email", user.getEmail()))
+                .claims(Map.of("name", user.getName(), "email", user.getEmail(),"role", user.getRole()))
                 .subject(user.getId().toString())
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + 1000 * tokenExpiration))
