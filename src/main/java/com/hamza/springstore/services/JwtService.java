@@ -1,6 +1,7 @@
 package com.hamza.springstore.services;
 
 import com.hamza.springstore.configurations.JwtConfig;
+import com.hamza.springstore.entities.Role;
 import com.hamza.springstore.entities.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
@@ -45,6 +46,9 @@ public class JwtService {
 
     public Long getIdFromToken(String token) {
         return Long.valueOf(getClaims(token).getSubject());
+    }
+    public Role getRoleFromToken(String token) {
+        return Role.valueOf(getClaims(token).get("role").toString());
     }
 
     private Claims getClaims(String token) {

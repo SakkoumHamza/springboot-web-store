@@ -1,8 +1,10 @@
 package com.hamza.springstore.configurations;
 
+import com.hamza.springstore.entities.Role;
 import com.hamza.springstore.filters.JwtAuthenticationFilter;
 import com.hamza.springstore.services.UserService;
 import lombok.AllArgsConstructor;
+import org.springdoc.core.service.GenericResponseService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -43,7 +45,7 @@ public class SecurityConfig {
 //  Be aware of 403 errors from here
 
     @Bean
-    public SecurityFilterChain SecurityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain SecurityFilterChain(HttpSecurity http, GenericResponseService responseBuilder) throws Exception {
         // Stateless sessions
         http
             .sessionManagement(c -> c.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -52,14 +54,21 @@ public class SecurityConfig {
         // Authorize
             .authorizeHttpRequests(c-> c
                     .requestMatchers("/carts/**").permitAll()
+                    .requestMatchers("/admin/**").hasRole(Role.ADMIN.name())
                     .requestMatchers(HttpMethod.POST,"/users/create").permitAll()
                     .requestMatchers(HttpMethod.POST,"/auth/login").permitAll()
                     .requestMatchers(HttpMethod.POST,"/auth/refresh").permitAll()
                     .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .exceptionHandling(c->
-                        c.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
+                .exceptionHandling(c->{
+                        c.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED));
+                        c.accessDeniedHandler(
+                                (request,response,accessDeniedException) ->{
+                                   response.setStatus(HttpStatus.FORBIDDEN.value());
+                                }
+                        );
+                    })
         ;
 
         return http.build();
