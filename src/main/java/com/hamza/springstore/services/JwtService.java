@@ -1,10 +1,8 @@
 package com.hamza.springstore.services;
 
 import com.hamza.springstore.configurations.JwtConfig;
-import com.hamza.springstore.entities.Role;
 import com.hamza.springstore.entities.User;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,42 +15,34 @@ import java.util.Map;
 public class JwtService {
     private final JwtConfig jwtConfig;
 
-    public String generateRefreshToken(User user) {
+    public Jwt generateRefreshToken(User user) {
         return generateToken(user, jwtConfig.getRefreshTokenExpiration());
     }
 
-    public String generateAccessToken(User user) {
+    public Jwt generateAccessToken(User user) {
         return generateToken(user,jwtConfig.getAccessTokenExpiration());
     }
 
-    private String generateToken(User user,long tokenExpiration) {
-        return Jwts.builder()
-                .claims(Map.of("name", user.getName(), "email", user.getEmail(),"role", user.getRole()))
-                .subject(user.getId().toString())
-                .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + 1000 * tokenExpiration))
-                .signWith(jwtConfig.getSecretKey())
-                .compact();
-    }
-
-    public boolean validateToken(String token) {
-        try{
-            var claims = getClaims(token);
-            return claims.getExpiration().after(new Date());
-        } catch ( JwtException e) {
-            return false;
+    public Jwt parse(String token) {
+        try {
+        var claims = getClaims(token);
+        return new Jwt(claims, jwtConfig.getSecretKey());
+        } catch (Exception e) {
+            return null;
         }
     }
 
-    public Long getIdFromToken(String token) {
-        return Long.valueOf(getClaims(token).getSubject());
-    }
-    public Role getRoleFromToken(String token) {
-        return Role.valueOf(getClaims(token).get("role").toString());
+    private Jwt generateToken(User user,long tokenExpiration) {
+        var claims =Jwts.claims()
+                .add(Map.of("name", user.getName(), "email", user.getEmail(),"role", user.getRole()))
+                .subject(user.getId().toString())
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + 1000 * tokenExpiration))
+                .build();
+        return new Jwt(claims, jwtConfig.getSecretKey());
     }
 
     private Claims getClaims(String token) {
-
         return Jwts
                 .parser()
                 .verifyWith(jwtConfig.getSecretKey())
@@ -60,4 +50,5 @@ public class JwtService {
                 .parseSignedClaims(token)
                 .getPayload();
     }
+
 }
