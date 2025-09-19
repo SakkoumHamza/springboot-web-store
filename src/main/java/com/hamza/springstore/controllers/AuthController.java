@@ -51,11 +51,11 @@ public class AuthController {
         cookie.setPath("/auth/refresh");
         cookie.setMaxAge((int) jwtConfig.getRefreshTokenExpiration());
         cookie.setSecure(true);
-
         response.addCookie(cookie);
 
         return ResponseEntity.ok(new JwtResponse(accessToken.toString()));
     }
+
 
     @PostMapping("validate")
     public boolean validateToken(
@@ -83,6 +83,7 @@ public class AuthController {
     public ResponseEntity<JwtResponse> refreshToken(
             @CookieValue(value = "refreshToken") String refreshToken
     ){
+
         var jwt = jwtService.parse(refreshToken);
 
         if(jwt.isExpired(refreshToken))

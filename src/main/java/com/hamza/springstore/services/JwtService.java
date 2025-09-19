@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.Map;
+import java.util.UUID;
 
 @Service
 @AllArgsConstructor
@@ -36,11 +37,13 @@ public class JwtService {
         var claims =Jwts.claims()
                 .add(Map.of("name", user.getName(), "email", user.getEmail(),"role", user.getRole()))
                 .subject(user.getId().toString())
+                .id(UUID.randomUUID().toString()) // To identify the token later
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + 1000 * tokenExpiration))
                 .build();
         return new Jwt(claims, jwtConfig.getSecretKey());
     }
+
 
     private Claims getClaims(String token) {
         return Jwts
@@ -50,5 +53,6 @@ public class JwtService {
                 .parseSignedClaims(token)
                 .getPayload();
     }
+
 
 }

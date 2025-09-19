@@ -3,6 +3,7 @@ package com.hamza.springstore.configurations;
 import com.hamza.springstore.entities.Role;
 import com.hamza.springstore.filters.JwtAuthenticationFilter;
 import com.hamza.springstore.services.UserService;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import org.springdoc.core.service.GenericResponseService;
 import org.springframework.context.annotation.Bean;
@@ -27,6 +28,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @AllArgsConstructor
 public class SecurityConfig {
     private final JwtAuthenticationFilter  jwtAuthenticationFilter;
+    private final CustomLogoutHandler customLogoutHandler;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -48,28 +50,35 @@ public class SecurityConfig {
     public SecurityFilterChain SecurityFilterChain(HttpSecurity http, GenericResponseService responseBuilder) throws Exception {
         // Stateless sessions
         http
+                .logout(logout -> logout
+                .logoutUrl("/logout") // custom logout URL
+                        .addLogoutHandler(customLogoutHandler)
+                .logoutSuccessHandler((request, response, authentication) -> {
+                    response.setStatus(HttpServletResponse.SC_OK);
+                })
+                .permitAll()
+        )
             .sessionManagement(c -> c.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         // Disable CRSF
             .csrf(AbstractHttpConfigurer::disable)
         // Authorize
             .authorizeHttpRequests(c-> c
-                    .requestMatchers("/carts/**").permitAll()
                     .requestMatchers("/admin/**").hasRole(Role.ADMIN.name())
                     .requestMatchers(HttpMethod.POST,"/users/create").permitAll()
                     .requestMatchers(HttpMethod.POST,"/auth/login").permitAll()
-                    .requestMatchers(HttpMethod.POST,"/auth/refresh").permitAll()
                     .anyRequest().authenticated()
                 )
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .exceptionHandling(c->{
-                        c.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED));
-                        c.accessDeniedHandler(
-                                (request,response,accessDeniedException) ->{
-                                   response.setStatus(HttpStatus.FORBIDDEN.value());
-                                }
-                        );
-                    })
-        ;
+
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+            .exceptionHandling(c->{
+                    c.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED));
+                    c.accessDeniedHandler(
+                            (request,response,accessDeniedException) ->{
+                               response.setStatus(HttpStatus.FORBIDDEN.value());
+                            }
+                    );
+                });
+
 
         return http.build();
     }

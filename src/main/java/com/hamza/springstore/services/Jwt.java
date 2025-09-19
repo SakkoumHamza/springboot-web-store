@@ -6,6 +6,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.ToString;
 
 import javax.crypto.SecretKey;
@@ -13,6 +14,7 @@ import java.util.Date;
 
 @AllArgsConstructor
 @ToString
+@Data
 public class Jwt {
     private final Claims claims ;
     private SecretKey secretKey;
