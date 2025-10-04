@@ -1,6 +1,6 @@
 package com.hamza.springstore.entities;
 
-public enum StatusEnum {
+public enum OrderStatus {
     PAID,
     CANCELLED,
     PENDING,
